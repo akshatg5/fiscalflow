@@ -14,6 +14,7 @@ const schema = z.object({
   category: z.string().min(1),
   isRecurring: z.boolean(),
   recurringFrequency: z.string().optional().nullable(),
+  creditCycle: z.number().int().min(0).optional().nullable(),
 })
 
 type TransactionFormData = z.infer<typeof schema>
@@ -41,7 +42,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
       ...transaction,
       type: transaction.type as 'EXPENSE' | 'INCOME',
       date: new Date(transaction.date),
-      recurringFrequency: transaction.recurringFrequency || undefined
+      recurringFrequency: transaction.recurringFrequency || undefined,
+      creditCycle: transaction.creditCycle || undefined
     } : { 
       date: date || new Date(),
       isRecurring: false,
@@ -49,30 +51,33 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
       amount: 0,
       description: '',
       category: '',
-      recurringFrequency: undefined
+      recurringFrequency: undefined,
+      creditCycle: undefined
     },
   })
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 bg-backdrop-blur flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">
           {transaction ? 'Edit Transaction' : 'Add Transaction'}
         </h2>
         <form onSubmit={handleSubmit(onSave)}>
-          <div className="mb-4">
-            <label className="block mb-2">Type</label>
-            <select {...register('type')} className="w-full p-2 border rounded">
-              <option value="EXPENSE">Expense</option>
-              <option value="INCOME">Income</option>
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block mb-2">Amount</label>
-            <input type="number" step="0.01" {...register('amount', { valueAsNumber: true })} className="w-full p-2 border rounded" />
-            {errors.amount && <p className="text-red-500">{errors.amount.message}</p>}
+          <div className='flex justify-between space-x-4'>
+            <div className="mb-4 w-1/2">
+              <label className="block mb-2">Type</label>
+              <select {...register('type')} className="w-full p-2 border rounded">
+                <option value="EXPENSE">Expense</option>
+                <option value="INCOME">Income</option>
+              </select>
+            </div>
+            <div className="mb-4 w-1/2">
+              <label className="block mb-2">Amount</label>
+              <input type="number" step="0.01" {...register('amount', { valueAsNumber: true })} className="w-full p-2 border rounded" />
+              {errors.amount && <p className="text-red-500">{errors.amount.message}</p>}
+            </div>
           </div>
           <div className="mb-4">
             <label className="block mb-2">Description</label>
@@ -88,7 +93,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                 <input
                   type="date"
                   {...field}
-                  value={field.value instanceof Date ? field.value.toISOString().substr(0, 10) : ''}
+                  value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : ''}
                   onChange={(e) => field.onChange(new Date(e.target.value))}
                   className="w-full p-2 border rounded"
                 />
@@ -110,6 +115,15 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
           <div className="mb-4">
             <label className="block mb-2">Recurring Frequency</label>
             <input type="text" {...register('recurringFrequency')} className="w-full p-2 border rounded" />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-2">Credit Cycle (days)</label>
+            <input
+              type="number"
+              {...register('creditCycle', { valueAsNumber: true })}
+              className="w-full p-2 border rounded"
+            />
+            {errors.creditCycle && <p className="text-red-500">{errors.creditCycle.message}</p>}
           </div>
           <div className="flex justify-between">
             <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">

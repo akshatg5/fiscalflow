@@ -21,22 +21,24 @@ export default async function Home() {
   })
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-10">
-      <div className="flex justify-between space-x-8">
-      <h1 className="text-4xl font-bold mb-8">Expense Tracker Calendar</h1>
-      <Card className="flex px-4 py-4 mb-2 space-x-2 ml-5 items-center">
-          <AlertCircleIcon color="red" width={15} height={15}/>
-          <div>
-          <p className="text-xs">
-          Click on any date to record an expense or income.
-          </p>
-          <p className="text-xs">
-          Click on an existing transaction to edit it.
-          </p>
-          </div>
-        </Card>
+    <main className="flex min-h-screen flex-col items-center justify-between p-6">
+      <div className="w-full max-w-7xl">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold mb-4 md:mb-0">FiscalFlow</h1>
+          <Card className="flex px-4 py-2 space-x-2 items-center bg-blue-50">
+            <AlertCircleIcon color="blue" width={15} height={15}/>
+            <div>
+              <p className="text-xs text-blue-700">
+                Click on any date to record an expense or income.
+              </p>
+              <p className="text-xs text-blue-700">
+                Click on an existing transaction to edit it.
+              </p>
+            </div>
+          </Card>
+        </div>
+        <Calendar initialTransactions={transactions} />
       </div>
-      <Calendar initialTransactions={transactions} />
     </main>
   )
 }

@@ -46,6 +46,7 @@ export async function POST(req: Request) {
       category,
       isRecurring,
       recurringFrequency,
+      creditCycle: body.creditCycle ? parseInt(body.creditCycle) : null,
     },
   })
 
@@ -71,6 +72,7 @@ export async function PUT(req: Request) {
       category,
       isRecurring,
       recurringFrequency,
+      creditCycle: body.creditCycle ? parseInt(body.creditCycle) : null,
     },
   })
 
