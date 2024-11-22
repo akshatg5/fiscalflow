@@ -13,7 +13,7 @@ const schema = z.object({
   date: z.date(),
   category: z.string().min(1),
   isRecurring: z.boolean(),
-  recurringFrequency: z.string().optional(),
+  recurringFrequency: z.string().optional().nullable(),
 })
 
 type TransactionFormData = z.infer<typeof schema>
@@ -37,13 +37,26 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
 }) => {
   const { register, handleSubmit, control, formState: { errors } } = useForm<TransactionFormData>({
     resolver: zodResolver(schema),
-    defaultValues: transaction || { date: date || new Date(), isRecurring: false },
+    defaultValues: transaction ? {
+      ...transaction,
+      type: transaction.type as 'EXPENSE' | 'INCOME',
+      date: new Date(transaction.date),
+      recurringFrequency: transaction.recurringFrequency || undefined
+    } : { 
+      date: date || new Date(),
+      isRecurring: false,
+      type: 'EXPENSE' as const,
+      amount: 0,
+      description: '',
+      category: '',
+      recurringFrequency: undefined
+    },
   })
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 bg-backdrop-blur flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">
           {transaction ? 'Edit Transaction' : 'Add Transaction'}
@@ -72,7 +85,13 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
               name="date"
               control={control}
               render={({ field }) => (
-                <input type="date" {...field} value={field.value.toISOString().substr(0, 10)} onChange={(e) => field.onChange(new Date(e.target.value))} className="w-full p-2 border rounded" />
+                <input
+                  type="date"
+                  {...field}
+                  value={field.value instanceof Date ? field.value.toISOString().substr(0, 10) : ''}
+                  onChange={(e) => field.onChange(new Date(e.target.value))}
+                  className="w-full p-2 border rounded"
+                />
               )}
             />
             {errors.date && <p className="text-red-500">{errors.date.message}</p>}
